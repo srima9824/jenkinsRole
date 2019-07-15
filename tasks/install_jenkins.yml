@@ -52,17 +52,6 @@
   register: jenkins_defaults
   when: ansible_os_family|lower == 'redhat'
 
-- name: fix a defect to disable setup wizard
-  jenkins_script:
-    script: |
-      import static jenkins.model.Jenkins.instance as jenkins
-      import jenkins.install.InstallState
-      if (!jenkins.installState.isSetupComplete()) {
-        InstallState.INITIAL_SETUP_COMPLETED.initializeState()
-        }
-    user: "{{ jenkins_admin_username }}"
-    password: "{{ jenkins_admin_password }}"
-
 - name: Create init.groovy.d directory
   file: 
      name: "{{jenkins_home}}/init.groovy.d"
@@ -81,13 +70,22 @@
     group: "{{ jenkins_process_group }}"
     mode: 0775
   register: jenkins_users_config
-
-- name: Start jenkins service
+ 
+- name: Restart jenkins service
   service:
      name: jenkins
-     state: started
+     state: restarted
 
-- name: Restart jenkins
+- name: Configure default users disable
+  template:
+    src: basic-security1.groovy.j2
+    dest: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    owner: "{{ jenkins_process_user }}"
+    group: "{{ jenkins_process_group }}"
+    mode: 0775
+  register: jenkins_users_config
+
+- name: Restart jenkins service
   service:
      name: jenkins
      state: restarted

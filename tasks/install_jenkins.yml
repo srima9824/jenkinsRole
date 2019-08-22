@@ -41,7 +41,6 @@
     dest: /etc/default/jenkins
     insertbefore: "^JENKINS_ARGS.*"
     line: "JAVA_ARGS=\"-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false\""
-  register: jenkins_defaults
   when: ansible_os_family|lower == 'debian'
  
 - name: Set Jenkins JAVA_ARGS

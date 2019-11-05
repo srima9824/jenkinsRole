@@ -48,7 +48,6 @@
     dest: /etc/sysconfig/jenkins
     insertbefore: "^JENKINS_ARGS.*"
     line: "JAVA_ARGS=\"-Djava.awt.headless=true -Djenkins.install.runSetupWizard=false\""
-  register: jenkins_defaults
   when: ansible_os_family|lower == 'redhat'
 
 - name: Create init.groovy.d directory
@@ -68,7 +67,6 @@
     owner: "{{ jenkins_process_user }}"
     group: "{{ jenkins_process_group }}"
     mode: 0775
-  register: jenkins_users_config
  
 - name: Restart jenkins service
   service:
@@ -94,21 +92,4 @@
     path: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
     state: absent
 
-- name: Set HTTP port in Jenkins config.
-  lineinfile:
-    backrefs: true
-    dest: /etc/default/jenkins
-    regexp: '^HTTP_PORT='
-    line: 'HTTP_PORT={{ jenkins_http_port }}'
-  register: jenkins_http_config
-  when: ansible_os_family|lower == 'debian'
-
-- name: Set HTTP port in Jenkins config.
-  lineinfile:
-    backrefs: true
-    dest: /etc/sysconfig/jenkins
-    regexp: '^HTTP_PORT='
-    line: 'HTTP_PORT={{ jenkins_http_port }}'
-  register: jenkins_http_config
-  when: ansible_os_family|lower == 'redhat'
 
